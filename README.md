@@ -1,1 +1,32 @@
 # charm-splunk-k8s
+
+Introduction
+============
+
+This charm is used to configure splunk enterprise into a kubernetes cloud
+
+Deployment
+==========
+Deploy the app with an attached container resource
+```bash
+juju deploy splunk-k8s --resource splunk-image=splunk/splunk:latest
+```
+
+Development
+===========
+```bash
+# Clone the charm code
+git clone https://github.com/addyess/charm-splunk-k8s && cd charm-splunk-k8s
+# Build the charm package
+charmcraft pack
+# Deploy!
+juju deploy splunk-k8s --resource splunk-image=splunk/splunk:latest
+# Approve of the license
+juju run-action splunk-k8s accept-license --wait
+```
+
+Retrieving the Admin Password
+============================
+```bash
+juju run -u splunk-k8s/leader -- cat /var/run/secrets/splunk/passwd
+```

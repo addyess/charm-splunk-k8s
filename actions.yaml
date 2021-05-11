@@ -1,0 +1,4 @@
+accept-license:
+    description: |
+        Each Unit must accept the license agreement.
+        The charm will be in a blocked state until completed

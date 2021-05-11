@@ -1,0 +1,20 @@
+# Copyright 2021 Adam Dyess
+# See LICENSE file for licensing details.
+name: splunk-k8s
+description: |
+  Splunk Enterprise is a platform for operational intelligence.
+  Our software lets you collect, analyze, and act upon the untapped value of big
+  data that your technology infrastructure, security systems, and business
+  applications generate. It gives you insights to drive operational performance and business results.
+summary: |
+  Splunk Enterprise Server
+tags:
+  - misc
+containers:
+  splunk:
+    resource: splunk-image
+resources:
+  splunk-image:
+    type: oci-image
+    description: OCI image for splunk server (https://hub.docker.com/r/splunk/splunk/)
+

@@ -1,0 +1,31 @@
+options:
+  splunk-license:
+    default: ""
+    type: string
+    description: |
+      URI to a Splunk license
+  splunk-password:
+    default: ""
+    type: string
+    description: |
+      password for the admin account in splunk, without one a
+      password will be generated
+  splunk-port:
+    default: 8080
+    type: int
+    descriptin: |
+      port exposed outside of the container wher the web interface is
+      presented
+  splunk-role:
+    default: "splunk_standalone"
+    type: string
+    description: |
+      The role of this Splunk instance
+      Acceptable values:
+        - splunk_standalone
+        - splunk_search_head
+        - splunk_indexer
+        - splunk_deployer
+        - splunk_license_master
+        - splunk_cluster_master
+        - splunk_heavy_forwarder
