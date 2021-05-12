@@ -56,7 +56,7 @@ charmcraft splunk-k8s
 charmcraft upload splunk-k8s.charm
 charmcraft upload-resource splunk-k8s splunk-image --image splunk/splunk:latest
 # check the current uploaded version
-charmcraft status
+charmcraft status splunk-k8s
 # release charm
 charmcraft release splunk-k8s --revision=$REV --channel=beta
 ```
