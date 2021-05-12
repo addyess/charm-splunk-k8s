@@ -5,11 +5,12 @@
 # Learn more at: https://juju.is/docs/sdk
 
 import logging
-from typing import Any
-from collections import OrderedDict
 import random
 import string
+from collections import OrderedDict
 from pathlib import Path
+
+from charms.nginx_ingress_integrator.v0.ingress import IngressRequires
 
 from ops.charm import CharmBase
 from ops.framework import StoredState
@@ -49,6 +50,15 @@ class SplunkCharm(CharmBase):
         self.state.set_default(last_config_password=None)
         self.state.set_default(splunk_password=random_password())
 
+        self.ingress = IngressRequires(
+            self,
+            {
+                "service-hostname": self.config["external_hostname"],
+                "service-name": self.app.name,
+                "service-port": 8000,
+            },
+        )
+
     def _update_password(self):
         config_password = self.config["splunk-password"]
         last_config_password, self.state.last_config_password = (
@@ -65,7 +75,7 @@ class SplunkCharm(CharmBase):
                 # the user is clearing the password
                 self.state.splunk_password = random_password()
 
-        if updated:
+        if updated or not PASSWD_FILE.exists():
             logger.info("Splunk Password Updated")
             PASSWD_FILE.parent.mkdir(parents=True, exist_ok=True)
             PASSWD_FILE.write_text(self.state.splunk_password + "\n")
@@ -83,6 +93,9 @@ class SplunkCharm(CharmBase):
 
     def _on_config_changed(self, _):
         """Handle the config-changed event"""
+        self.ingress.update_config(
+            {"service-hostname": self.config["external_hostname"]}
+        )
         self._update_password()
         self._do_config_change()
 
@@ -112,7 +125,7 @@ class SplunkCharm(CharmBase):
         # All is well, set an ActiveStatus
         self._on_update_status(None)
 
-    def _splunk_layer(self) -> Any:
+    def _splunk_layer(self):
         """Returns a Pebble configuration layer for nrpe-server"""
         environment = {
             "SPLUNK_PASSWORD": self.state.splunk_password,
