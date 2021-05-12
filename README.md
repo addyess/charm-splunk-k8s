@@ -1,5 +1,7 @@
 # charm-splunk-k8s
 
+[![charm-splunk-k8s CI](https://github.com/addyess/charm-splunk-k8s/actions/workflows/main.yml/badge.svg)](https://github.com/addyess/charm-splunk-k8s/actions/workflows/main.yml)
+
 Introduction
 ============
 
