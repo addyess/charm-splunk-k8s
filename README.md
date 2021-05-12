@@ -1,6 +1,7 @@
 # charm-splunk-k8s
 
 [![charm-splunk-k8s CI](https://github.com/addyess/charm-splunk-k8s/actions/workflows/main.yml/badge.svg)](https://github.com/addyess/charm-splunk-k8s/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/addyess/charm-splunk-k8s/branch/main/graph/badge.svg?token=T27QYE2PCI)](https://codecov.io/gh/addyess/charm-splunk-k8s)
 
 Introduction
 ============
