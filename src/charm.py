@@ -8,7 +8,6 @@ import logging
 import random
 import string
 from collections import OrderedDict
-from pathlib import Path
 
 from charms.nginx_ingress_integrator.v0.ingress import IngressRequires
 
@@ -24,7 +23,6 @@ SPLUNK_ARGS = OrderedDict(
     SPLUNK_ROLE="splunk-role",
     SPLUNK_LICENSE_URI="splunk-license",
 )
-PASSWD_FILE = Path("/var/run/secrets/splunk/passwd")
 
 
 def random_password():
@@ -52,6 +50,9 @@ class SplunkCharm(CharmBase):
         self.framework.observe(self.on.resume_action, self._on_resume_action)
         self.framework.observe(self.on.pause_action, self._on_pause_action)
         self.framework.observe(
+            self.on.reveal_admin_password_action, self._on_reveal_admin_password_action
+        )
+        self.framework.observe(
             self.on.accept_license_action, self._on_accept_license_action
         )
         self.framework.observe(self.on.update_status, self._on_update_status)
@@ -64,7 +65,7 @@ class SplunkCharm(CharmBase):
         self.ingress = IngressRequires(
             self,
             {
-                "service-hostname": self.config["external_hostname"],
+                "service-hostname": self.config["external-hostname"],
                 "service-name": self.app.name,
                 "service-port": 8000,
             },
@@ -85,11 +86,7 @@ class SplunkCharm(CharmBase):
             else:
                 # the user is clearing the password
                 self.state.splunk_password = random_password()
-
-        if updated or not PASSWD_FILE.exists():
             logger.info("Splunk Password Updated")
-            PASSWD_FILE.parent.mkdir(parents=True, exist_ok=True)
-            PASSWD_FILE.write_text(self.state.splunk_password + "\n")
 
     def _on_accept_license_action(self, _):
         self.state.license_accepted = True
@@ -103,6 +100,11 @@ class SplunkCharm(CharmBase):
         self.state.auto_start = False
         self._do_config_change()
 
+    def _on_reveal_admin_password_action(self, action_event):
+        return action_event.set_results(
+            OrderedDict(username="admin", password=self.state.splunk_password)
+        )
+
     def _on_update_status(self, _):
         container = self.unit.get_container("splunk")
         if not self.state.auto_start:
@@ -115,7 +117,7 @@ class SplunkCharm(CharmBase):
     def _on_config_changed(self, _):
         """Handle the config-changed event"""
         self.ingress.update_config(
-            {"service-hostname": self.config["external_hostname"]}
+            {"service-hostname": self.config["external-hostname"]}
         )
         self._update_password()
         self._do_config_change()

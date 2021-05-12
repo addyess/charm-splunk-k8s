@@ -8,3 +8,7 @@ pause:
 resume:
     description: |-
         Start splunk service
+reveal-admin-password:
+    description: |-
+        Reveal the current automatically generated password for the splunk
+        server.

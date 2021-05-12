@@ -22,7 +22,7 @@ options:
         - splunk_license_master
         - splunk_cluster_master
         - splunk_heavy_forwarder
-  external_hostname:
+  external-hostname:
     default: splunk.juju
     type: string
     descriptin: |-
