@@ -56,7 +56,7 @@ def test_reset_password_creates_random(harness, mock_write, mock_mkdir):
         "splunk-license",
     ],
 )
-def test_splunk_layer(harness, config_expected):
+def test_splunk_layer(harness, config_expected, mock_write, mock_mkdir):
     config, expected = config_expected
     harness.charm.state.last_config_password = config.get("splunk-password", "")
     harness.update_config(config)
