@@ -15,7 +15,7 @@ from charms.nginx_ingress_integrator.v0.ingress import IngressRequires
 from ops.charm import CharmBase
 from ops.framework import StoredState
 from ops.main import main
-from ops.model import ActiveStatus, BlockedStatus
+from ops.model import ActiveStatus, BlockedStatus, MaintenanceStatus
 
 
 logger = logging.getLogger(__name__)
@@ -49,12 +49,15 @@ class SplunkCharm(CharmBase):
     def __init__(self, *args):
         super().__init__(*args)
         self.framework.observe(self.on.config_changed, self._on_config_changed)
+        self.framework.observe(self.on.resume_action, self._on_resume_action)
+        self.framework.observe(self.on.pause_action, self._on_pause_action)
         self.framework.observe(
             self.on.accept_license_action, self._on_accept_license_action
         )
         self.framework.observe(self.on.update_status, self._on_update_status)
 
         self.state.set_default(license_accepted=False)
+        self.state.set_default(auto_start=True)
         self.state.set_default(last_config_password=None)
         self.state.set_default(splunk_password=random_password())
 
@@ -92,9 +95,19 @@ class SplunkCharm(CharmBase):
         self.state.license_accepted = True
         self._do_config_change()
 
+    def _on_resume_action(self, _):
+        self.state.auto_start = True
+        self._do_config_change()
+
+    def _on_pause_action(self, _):
+        self.state.auto_start = False
+        self._do_config_change()
+
     def _on_update_status(self, _):
         container = self.unit.get_container("splunk")
-        if not container.get_service("splunk").is_running():
+        if not self.state.auto_start:
+            self.unit.status = MaintenanceStatus("splunk service is paused")
+        elif not container.get_service("splunk").is_running():
             self.unit.status = BlockedStatus("splunk service isn't running")
         else:
             self.unit.status = ActiveStatus("ready")
@@ -128,10 +141,13 @@ class SplunkCharm(CharmBase):
             # Changes were made, add the new layer
             container.add_layer("splunk", layer, combine=True)
             logging.info("Added updated layer 'splunk' to Pebble plan")
-            # Stop the service if it is already running
-            if container.get_service("splunk").is_running():
-                container.stop("splunk")
-            # Restart it and report a new status to Juju
+
+        # Stop the service if it is already running
+        if container.get_service("splunk").is_running():
+            container.stop("splunk")
+
+        # Restart it and report a new status to Juju
+        if self.state.auto_start and not container.get_service("splunk").is_running():
             container.start("splunk")
             logging.info("Restarted splunk service")
 
@@ -148,6 +164,7 @@ class SplunkCharm(CharmBase):
             cfg = self.config[config]
             if cfg:
                 environment[env_name] = cfg
+        cmd = "bash -c '/sbin/entrypoint.sh start > /var/log/splunk.log 2>&1'"
         return {
             "summary": "splunk layer",
             "description": "pebble config layer for splunk",
@@ -155,8 +172,8 @@ class SplunkCharm(CharmBase):
                 "splunk": {
                     "override": "replace",
                     "summary": "splunk",
-                    "command": "/sbin/entrypoint.sh start",
-                    "startup": "enabled",
+                    "command": cmd,
+                    "startup": "enabled" if self.state.auto_start else "disabled",
                     "environment": environment,
                 },
             },

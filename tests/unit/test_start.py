@@ -1,7 +1,7 @@
 import uuid
 from unittest.mock import patch
 
-from ops.model import BlockedStatus
+from ops.model import BlockedStatus, MaintenanceStatus
 
 import pytest
 
@@ -79,3 +79,19 @@ def test_blocked_if_minimum_password_error(harness, mock_write, mock_mkdir):
     assert harness.charm.unit.status == BlockedStatus(
         "Password doesn't meet minimum requirements."
     )
+
+
+def test_pause(harness, mock_write, mock_mkdir):
+    harness.charm.state.auto_start = True
+    harness.charm._on_pause_action(None)
+    harness.charm._on_accept_license_action(None)
+    assert harness.charm.state.auto_start is False
+    assert harness.charm.unit.status == MaintenanceStatus("splunk service is paused")
+
+
+def test_resume(harness, mock_write, mock_mkdir):
+    harness.charm.state.auto_start = False
+    harness.charm._on_resume_action(None)
+    harness.charm._on_accept_license_action(None)
+    assert harness.charm.state.auto_start is True
+    assert harness.charm.unit.status.message == "ready"

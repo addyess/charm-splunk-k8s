@@ -1,4 +1,10 @@
 accept-license:
-    description: |
+    description: |-
         Each Unit must accept the license agreement.
         The charm will be in a blocked state until completed
+pause:
+    description: |-
+        Stop splunk service
+resume:
+    description: |-
+        Start splunk service
