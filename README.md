@@ -114,7 +114,7 @@ juju config splunk-k8s splunk-password='my-nifty-password'
 ### splunk-role
 This same charm can be used to deploy splunk in various [roles](https://github.com/splunk/splunk-ansible/tree/develop/roles).
 ```bash
-juju config splunk-k8s splunk-password='splunk_indexer'
+juju config splunk-k8s splunk-role='splunk_indexer'
 ```
 
 ### external-hostname
