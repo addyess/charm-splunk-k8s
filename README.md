@@ -3,12 +3,14 @@
 [![charm-splunk-k8s CI](https://github.com/addyess/charm-splunk-k8s/actions/workflows/main.yml/badge.svg)](https://github.com/addyess/charm-splunk-k8s/actions/workflows/main.yml)
 [![codecov](https://codecov.io/gh/addyess/charm-splunk-k8s/branch/main/graph/badge.svg?token=T27QYE2PCI)](https://codecov.io/gh/addyess/charm-splunk-k8s)
 
+### [![juju](https://assets.ubuntu.com/v1/bbea397b-Logo+no+square.svg)](https://juju.is/ "Juju Operators") Powered by Juju
+
+----------------
 Introduction
 ------------
-This charm is used to configure splunk enterprise into a kubernetes cloud.
+This charm is used to configure splunk enterprise into a Kubernetes cloud using [juju operators](https://juju.is/ "Juju")
 
-Deployment
-----------
+## Deployment
 Deploy the app with an attached container resource.
 ```bash
 # Deploy the charm
@@ -25,8 +27,8 @@ $ juju config nginx-ingress-integrator ingress-class="public"
 $ watch -n1 --color juju status --color
 ```
 
-Development
-----------
+## Development
+Here's how to get the code, run the tests, and deploy to a local k8s cluster.
 ```bash
 # Clone the charm code
 git clone https://github.com/addyess/charm-splunk-k8s && cd charm-splunk-k8s
@@ -42,8 +44,7 @@ charmcraft pack
 juju deploy ./splunk-k8s.charm --resource splunk-image=splunk/splunk:latest
 ```
 
-Publishing
-----------
+## Publishing
 Publishing the charm through [charmhub.io](https://juju.is/docs/sdk/publishing)
 ```bash
 # Build the charm package
@@ -61,6 +62,7 @@ charmcraft status splunk-k8s
 charmcraft release splunk-k8s --revision=$REV --channel=beta
 ```
 
+----------------
 Actions
 ----------
 
@@ -91,6 +93,7 @@ a password will be automatically generated for you.
 juju run-action splunk-k8s/leader reveal-admin-password --wait
 ```
 
+----------------
 Config
 ------
 
@@ -119,3 +122,15 @@ This is the DNS name used by the kubernetes ingress controller.  By default,
 the DNS name is `splunk.juju` making the web service reachable at http://splunk.juju.
 
 Update to match the DNS settings in your kubernetes deployment. 
+
+-------------------
+Road Map
+---------
+
+### Relations
+* [x] define relations to use ingress controller 
+* [ ] define juju relation to splunk forwarders
+* [ ] define app relations for HA deployments (password share)
+
+### Configuration
+* [ ] Support for license file as well as license URL
