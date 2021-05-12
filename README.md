@@ -42,6 +42,25 @@ charmcraft pack
 juju deploy ./splunk-k8s.charm --resource splunk-image=splunk/splunk:latest
 ```
 
+Publishing
+----------
+Publishing the charm through [charmhub.io](https://juju.is/docs/sdk/publishing)
+```bash
+# Build the charm package
+charmcraft pack
+# Login to charm store
+charmcraft login
+# register the charm name
+charmcraft splunk-k8s
+# upload splunk-k8s.charm and the associated docker image
+charmcraft upload splunk-k8s.charm
+charmcraft upload-resource splunk-k8s splunk-image --image splunk/splunk:latest
+# check the current uploaded version
+charmcraft status
+# release charm
+charmcraft release splunk-k8s --revision=$REV --channel=beta
+```
+
 Actions
 ----------
 
