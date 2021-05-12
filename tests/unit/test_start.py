@@ -1,7 +1,7 @@
 import uuid
 from unittest.mock import patch
 
-from ops.model import ActiveStatus, BlockedStatus
+from ops.model import BlockedStatus
 
 import pytest
 
@@ -72,6 +72,10 @@ def test_blocked_if_license_not_accepted(harness, mock_write, mock_mkdir):
     harness.update_config({})
     assert harness.charm.unit.status == BlockedStatus("Run 'accept-license' action")
 
+
+def test_blocked_if_minimum_password_error(harness, mock_write, mock_mkdir):
     harness.charm._on_accept_license_action(None)
-    harness.update_config({})
-    assert harness.charm.unit.status == ActiveStatus("ready")
+    harness.update_config({"splunk-password": "short"})
+    assert harness.charm.unit.status == BlockedStatus(
+        "Password doesn't meet minimum requirements."
+    )

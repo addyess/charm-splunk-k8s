@@ -33,6 +33,14 @@ def random_password():
     return "".join(random.choice(chars) for _ in range(size))
 
 
+def minimum_password_requirements(password):
+    """
+    Confirm password is valid, otherwise splunk service silently doesn't start.
+    https://docs.splunk.com/Documentation/Splunk/latest/Security/Configurepasswordsinspecfile
+    """
+    return len(password) >= 8
+
+
 class SplunkCharm(CharmBase):
     """Charm the service."""
 
@@ -102,6 +110,11 @@ class SplunkCharm(CharmBase):
     def _do_config_change(self):
         if not self.state.license_accepted:
             self.unit.status = BlockedStatus("Run 'accept-license' action")
+            return
+        if not minimum_password_requirements(self.state.splunk_password):
+            self.unit.status = BlockedStatus(
+                "Password doesn't meet minimum requirements."
+            )
             return
 
         # Get the splunk container so we can configure/manipulate it
