@@ -35,5 +35,5 @@ jobs:
       - name: Upload Coverage
         uses: codecov/codecov-action@v1
         with:
-          files: ./.coverage
+          files: ./report/unit/coverage-xml
           flags: unittests # optional
