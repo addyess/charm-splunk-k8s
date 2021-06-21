@@ -49,6 +49,7 @@ class SplunkCharm(CharmBase):
         self.framework.observe(self.on.config_changed, self._on_config_changed)
         self.framework.observe(self.on.resume_action, self._on_resume_action)
         self.framework.observe(self.on.pause_action, self._on_pause_action)
+        self.framework.observe(self.on.splunk_pebble_ready, self._on_pebble_ready)
         self.framework.observe(
             self.on.reveal_admin_password_action, self._on_reveal_admin_password_action
         )
@@ -58,6 +59,7 @@ class SplunkCharm(CharmBase):
         self.framework.observe(self.on.update_status, self._on_update_status)
 
         self.state.set_default(license_accepted=False)
+        self.state.set_default(pebble_ready=False)
         self.state.set_default(auto_start=True)
         self.state.set_default(last_config_password=None)
         self.state.set_default(splunk_password=random_password())
@@ -100,6 +102,10 @@ class SplunkCharm(CharmBase):
         self.state.auto_start = False
         self._do_config_change()
 
+    def _on_pebble_ready(self, event):
+        self.state.pebble_ready = True
+        self._do_config_change()
+
     def _on_reveal_admin_password_action(self, action_event):
         return action_event.set_results(
             OrderedDict(username="admin", password=self.state.splunk_password)
@@ -123,6 +129,9 @@ class SplunkCharm(CharmBase):
         self._do_config_change()
 
     def _do_config_change(self):
+        if not self.state.pebble_ready:
+            self.unit.status = MaintenanceStatus("Awaiting the 'splunk' container")
+            return
         if not self.state.license_accepted:
             self.unit.status = BlockedStatus("Run 'accept-license' action")
             return

@@ -59,7 +59,7 @@ charmcraft upload-resource splunk-k8s splunk-image --image splunk/splunk:latest
 # check the current uploaded version
 charmcraft status splunk-k8s
 # release charm
-charmcraft release splunk-k8s --revision=$REV --channel=beta
+charmcraft release splunk-k8s --revision=$REV --resource splunk-image:$RSC_REV --channel=beta
 ```
 
 ----------------
@@ -67,7 +67,7 @@ Actions
 ----------
 
 ### Accept-License
-Splunk is Licensed software and requires the user accept the license before starting.
+Splunk is a licensed software and requires the user accept the license before starting.
 The charm requires you to run the action once for the life of the charm. See 
 [Splunk Documentation](https://docs.splunk.com/Documentation/Splunk/8.1.3/Admin/HowSplunklicensingworks) 
 for more details regarding the license.

@@ -10,6 +10,7 @@ import pytest
 def test_create(harness):
     assert harness.charm.state.license_accepted is False
     assert harness.charm.state.last_config_password is None
+    assert harness.charm.state.pebble_ready is False
 
 
 def test_config_password_creates_file(harness):
@@ -53,12 +54,23 @@ def test_splunk_layer(harness, config_expected):
         assert {env[expected]} == set(config.values())
 
 
+def test_maintenance_status_if_not_pebble_ready(harness):
+    harness.update_config({})
+    assert harness.charm.unit.status == MaintenanceStatus(
+        "Awaiting the 'splunk' container"
+    )
+    harness.charm._on_pebble_ready(None)
+    assert harness.charm.state.pebble_ready is True
+
+
 def test_blocked_if_license_not_accepted(harness):
+    harness.charm.state.pebble_ready = True
     harness.update_config({})
     assert harness.charm.unit.status == BlockedStatus("Run 'accept-license' action")
 
 
 def test_blocked_if_minimum_password_error(harness):
+    harness.charm.state.pebble_ready = True
     harness.charm._on_accept_license_action(None)
     harness.update_config({"splunk-password": "short"})
     assert harness.charm.unit.status == BlockedStatus(
@@ -67,6 +79,7 @@ def test_blocked_if_minimum_password_error(harness):
 
 
 def test_pause(harness):
+    harness.charm.state.pebble_ready = True
     harness.charm.state.auto_start = True
     harness.charm._on_pause_action(None)
     harness.charm._on_accept_license_action(None)
@@ -75,6 +88,7 @@ def test_pause(harness):
 
 
 def test_resume(harness):
+    harness.charm.state.pebble_ready = True
     harness.charm.state.auto_start = False
     harness.charm._on_resume_action(None)
     harness.charm._on_accept_license_action(None)
@@ -84,6 +98,7 @@ def test_resume(harness):
 
 def test_reveal_password(harness):
     act = MagicMock(spec=ActionEvent)
+    harness.charm.state.pebble_ready = True
     harness.charm.state.splunk_password = "testing"
     harness.charm._on_reveal_admin_password_action(act)
     act.set_results.assert_called_with({"username": "admin", "password": "testing"})
