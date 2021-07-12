@@ -14,9 +14,9 @@ This charm is used to configure splunk enterprise into a Kubernetes cloud using 
 Deploy the app with an attached container resource.
 ```bash
 # Deploy the charm
-$ juju deploy splunk-k8s
+$ juju deploy splunk-k8s --channel beta
 # Approve of the license
-$ juju run-action splunk-k8s accept-license
+$ juju run-action splunk-k8s/0 accept-license
 # Deploy the ingress integrator
 $ juju deploy nginx-ingress-integrator
 # Relate our app to the ingress
